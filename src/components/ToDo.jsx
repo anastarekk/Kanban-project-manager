@@ -1,44 +1,39 @@
 import EditTask from "./EditTask";
 import { useDrag } from "react-dnd";
 
-const ToDo = ({ task, index, taskList, setTaskList }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "todo",
-    item: {
-      id: index,
-      projectName: task.projectName,
-      taskDescription: task.taskDescription,
-    },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
+const ToDo = ({ task, taskList, setTaskList, dragType = "todo" }) => {
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: "todo",
+      item: {
+        id: task.id,
+        projectName: task.projectName,
+        taskDescription: task.taskDescription,
+      },
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
     }),
-  }));
-
+    [task, dragType],
+  );
   const handleDelete = (e) => {
-    e.preventDefault();
-    let taskIndex = taskList.indexOf(task);
-    taskList.splice(taskIndex, 1);
-    setTaskList((prev) => [...prev]);
+    setTaskList((prev) => prev.filter((t) => t.id !== task.id));
   };
+
   return (
     <>
       <div
-        className="flex flex-col items-start justify-start bg-white my-4 ml-6 py-4 px-6 w-3/4 max-w-lg"
         ref={drag}
+        className="flex flex-col items-start bg-white ml-6 my-4 w-3/4 max-w-lg py-4 px-6"
       >
-        <div className="w-full flex flex-row justify-between">
-          <p className="font-semibold text-xl">{task.projectName}</p>
-          <EditTask
-            task={task}
-            index={index}
-            taskList={taskList}
-            setTaskList={setTaskList}
-          />
+        <div className="flex w-full justify-between flex-row">
+          <p className="font-semibold text-xl mb-2">{task.projectName}</p>
+          <EditTask task={task} taskList={taskList} setTaskList={setTaskList} />
         </div>
-        <p className="text-lg py-2">{task.taskDescription}</p>
-        <div className="flex w-full justify-center flex-col sm:flex-row items-center sm-justify-evenly">
+        <p className="text-lg">{task.taskDescription}</p>
+        <div className="flex w-full justify-center sm:flex-row flex-col items-center sm:justify-evenly mt-2">
           <button
-            className="bg-red-500 rounded-lg text-white text-sm font-semibold uppercase py-1.5 px-3 mb-1"
+            className="bg-red-500 text-white rounded-lg px-3 py-1 font-semibold hover:opacity-70"
             onClick={handleDelete}
           >
             DELETE
